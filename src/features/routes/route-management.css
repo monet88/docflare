@@ -1,0 +1,241 @@
+.route-management-page {
+  max-width: 48rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.route-header {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.route-header h1 {
+  margin: 0;
+  color: var(--onboarding-ink);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.route-intro {
+  max-width: 34rem;
+  margin: 0.85rem 0 0;
+  color: var(--onboarding-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.route-status {
+  color: var(--onboarding-muted);
+  font-weight: 700;
+}
+
+.route-status.route-error {
+  color: var(--onboarding-red);
+}
+
+.add-route-btn {
+  min-height: 2.7rem;
+  border: 0;
+  border-radius: 0.9rem;
+  padding: 0.7rem 1.2rem;
+  color: white;
+  background: linear-gradient(135deg, #172554, var(--onboarding-blue));
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 850;
+  box-shadow: 0 1rem 2rem rgba(49, 87, 255, 0.2);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+  white-space: nowrap;
+}
+
+.add-route-btn:hover {
+  transform: translateY(-1px);
+}
+
+.route-form-section {
+  border: 1px solid var(--onboarding-line);
+  border-radius: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--onboarding-surface);
+  box-shadow: var(--onboarding-shadow);
+}
+
+.route-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.route-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: #344054;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.route-form input {
+  width: 100%;
+  min-height: 2.7rem;
+  border: 1px solid rgba(52, 64, 84, 0.2);
+  border-radius: 0.85rem;
+  padding: 0.65rem 0.85rem;
+  color: var(--onboarding-ink);
+  background: white;
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.route-form input:focus {
+  outline: 0.18rem solid rgba(49, 87, 255, 0.22);
+  outline-offset: 0.1rem;
+  border-color: var(--onboarding-blue);
+}
+
+.route-form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.route-form-actions button[type="submit"] {
+  min-height: 2.7rem;
+  border: 0;
+  border-radius: 0.9rem;
+  padding: 0.7rem 1.2rem;
+  color: white;
+  background: linear-gradient(135deg, #172554, var(--onboarding-blue));
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 850;
+  box-shadow: 0 1rem 2rem rgba(49, 87, 255, 0.2);
+}
+
+.route-form-actions button[type="submit"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.route-form-actions .cancel-action {
+  min-height: 2.7rem;
+  border: 1px solid rgba(23, 37, 84, 0.14);
+  border-radius: 0.9rem;
+  padding: 0.7rem 1.2rem;
+  color: var(--onboarding-navy);
+  background: white;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.empty-route-card {
+  border: 1px solid var(--onboarding-line);
+  border-radius: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--onboarding-surface);
+  box-shadow: var(--onboarding-shadow);
+}
+
+.empty-route-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.15rem, 2vw, 1.6rem);
+}
+
+.empty-route-card p {
+  color: var(--onboarding-muted);
+  line-height: 1.6;
+}
+
+.route-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.route-card {
+  display: grid;
+  gap: 0.85rem;
+  border: 1px solid var(--onboarding-line);
+  border-radius: 1.1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.route-card-header {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.route-card-header > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.route-label {
+  color: var(--onboarding-muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.route-value {
+  margin: 0;
+  color: var(--onboarding-ink);
+  overflow-wrap: anywhere;
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.route-hostname {
+  color: var(--onboarding-navy);
+  font-weight: 850;
+}
+
+.route-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.route-actions button {
+  min-height: 2.35rem;
+  border: 1px solid rgba(23, 37, 84, 0.14);
+  border-radius: 0.75rem;
+  padding: 0.45rem 0.75rem;
+  color: var(--onboarding-navy);
+  background: white;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
+}
+
+.route-actions button:hover:not(:disabled) {
+  background: #f0f4ff;
+  border-color: rgba(49, 87, 255, 0.22);
+}
+
+.route-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.route-actions .danger-action {
+  color: var(--onboarding-red);
+  border-color: rgba(180, 35, 24, 0.18);
+}
+
+.route-actions .danger-action:hover:not(:disabled) {
+  background: #fff5f3;
+  border-color: rgba(180, 35, 24, 0.32);
+}
