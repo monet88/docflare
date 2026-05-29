@@ -42,7 +42,10 @@ pub fn is_valid_hostname(value: &str) -> bool {
         if label.starts_with('-') || label.ends_with('-') {
             return false;
         }
-        if !label.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-') {
+        if !label
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-')
+        {
             return false;
         }
     }

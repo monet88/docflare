@@ -24,11 +24,7 @@ pub fn update_route(app: AppHandle, input: UpdateRouteInput) -> Result<Route, Ui
 }
 
 #[tauri::command]
-pub fn delete_route(
-    app: AppHandle,
-    route_id: String,
-    profile_id: String,
-) -> Result<(), UiError> {
+pub fn delete_route(app: AppHandle, route_id: String, profile_id: String) -> Result<(), UiError> {
     let service = route_service(&app)?;
     service
         .delete_route(&route_id, &profile_id)
