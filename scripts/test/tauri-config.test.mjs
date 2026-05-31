@@ -17,6 +17,15 @@ test('bundle is active', () => {
     assert.equal(conf.bundle.active, true);
 });
 
+test('bundle creates updater artifacts (required for latest.json generation)', () => {
+    const conf = readJson('src-tauri/tauri.conf.json');
+    assert.equal(
+        conf.bundle.createUpdaterArtifacts,
+        true,
+        'bundle.createUpdaterArtifacts must be true or tauri-action cannot produce latest.json',
+    );
+});
+
 test('bundle targets are exactly the 5 expected (order-independent)', () => {
     const conf = readJson('src-tauri/tauri.conf.json');
     assert.ok(Array.isArray(conf.bundle.targets), 'bundle.targets must be an array');
