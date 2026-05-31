@@ -5,7 +5,7 @@
 // LOUDLY if zero test files are found (a bare glob would exit 0 — false green).
 import { readdirSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const testDir = join(dirname(fileURLToPath(import.meta.url)), 'test');
