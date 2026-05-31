@@ -102,8 +102,14 @@ jobs:
         shell: bash
         run: |
           mkdir -p updater-out
-          found=$(find src-tauri/target -name 'latest.json' -path '*release*' | head -n1)
-          test -n "$found" || { echo "latest.json not found for ${{ matrix.target }}"; exit 1; }
+          found=$(find src-tauri/target -name 'latest.json' | head -n1)
+          if [ -z "$found" ]; then
+            echo "::error::latest.json not found for ${{ matrix.target }}. createUpdaterArtifacts may be disabled or signing failed."
+            echo "--- bundle tree for debugging ---"
+            find src-tauri/target -path '*bundle*' -type f | head -50 || true
+            exit 1
+          fi
+          echo "found updater manifest: $found"
           cp "$found" "updater-out/latest-${{ matrix.target }}.json"
 
       - name: Upload per-target updater manifest artifact
