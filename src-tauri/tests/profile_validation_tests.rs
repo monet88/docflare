@@ -1,10 +1,17 @@
 use async_trait::async_trait;
 use docflare_lib::cloudflare::client::CloudflarePreflight;
-use docflare_lib::domain::profile::{CloudflareProfileMetadata, ValidateAndSaveProfileInput};
+use docflare_lib::domain::profile::ValidateAndSaveProfileInput;
 use docflare_lib::error::{AppError, AppResult};
 use docflare_lib::services::validation_service::ValidationService;
 use docflare_lib::store::fake_secret_store::FakeSecretStore;
-use docflare_lib::store::profile_config_store::{AppConfig, ProfileConfigStore};
+use docflare_lib::store::profile_config_store::ProfileConfigStore;
+
+// Imports used only by the unix-only failed-replacement test below.
+#[cfg(unix)]
+use docflare_lib::domain::profile::CloudflareProfileMetadata;
+#[cfg(unix)]
+use docflare_lib::store::profile_config_store::AppConfig;
+#[cfg(unix)]
 use docflare_lib::store::secret_store::SecretStore;
 
 #[derive(Clone)]

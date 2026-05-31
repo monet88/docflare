@@ -1,0 +1,34 @@
+{
+    "cloudflaredVersion": "2026.5.2",
+    "downloadUrlTemplate": "https://github.com/cloudflare/cloudflared/releases/download/{version}/{asset}",
+    "targets": {
+        "x86_64-pc-windows-msvc": {
+            "asset": "cloudflared-windows-amd64.exe",
+            "sha256": "20b9638f685333d623798e733effbad2487093f15ba592f6c7752360ff3b7ab7",
+            "outName": "cloudflared-x86_64-pc-windows-msvc.exe",
+            "extract": null,
+            "hashOf": "download"
+        },
+        "x86_64-unknown-linux-gnu": {
+            "asset": "cloudflared-linux-amd64",
+            "sha256": "5286698547f03df745adb2355f04c12dde52ef425491e81f433642d695521886",
+            "outName": "cloudflared-x86_64-unknown-linux-gnu",
+            "extract": null,
+            "hashOf": "download"
+        },
+        "aarch64-apple-darwin": {
+            "asset": "cloudflared-darwin-arm64.tgz",
+            "sha256": "cd9f764abfd06757b4def10ee5ba3d862381ed9fc02d6c1f06086c23d88695c6",
+            "outName": "cloudflared-aarch64-apple-darwin",
+            "extract": "tgz:cloudflared",
+            "hashOf": "extracted"
+        },
+        "x86_64-apple-darwin": {
+            "asset": "cloudflared-darwin-amd64.tgz",
+            "sha256": "c4fdc6021cd63003e32e70b577e17d47d493c6df4e24c7c97169ed74b67a715d",
+            "outName": "cloudflared-x86_64-apple-darwin",
+            "extract": "tgz:cloudflared",
+            "hashOf": "extracted"
+        }
+    }
+}

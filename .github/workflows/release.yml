@@ -1,0 +1,143 @@
+name: Release
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_PROFILE_RELEASE_LTO: thin
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-14, target: aarch64-apple-darwin, bundles: app,dmg }
+          - { os: macos-15-intel, target: x86_64-apple-darwin, bundles: app,dmg }
+          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu, bundles: deb,appimage }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, bundles: nsis }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install Linux system dependencies
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev \
+            libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download pinned sidecar
+        run: npm run download-sidecar -- --target ${{ matrix.target }}
+
+      - name: Verify sidecar checksum
+        run: npm run verify-sidecar -- --target ${{ matrix.target }}
+
+      - name: Build and bundle (tauri-action)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Docflare ${{ github.ref_name }}
+          releaseDraft: true
+          prerelease: false
+          includeUpdaterJson: true
+          args: --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+
+      - name: Build Windows portable ZIP
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $stage = "staging/Docflare-$version"
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+          Copy-Item "src-tauri/target/${{ matrix.target }}/release/Docflare.exe" $stage/
+          Copy-Item "src-tauri/binaries/cloudflared-x86_64-pc-windows-msvc.exe" "$stage/cloudflared.exe"
+          Get-ChildItem "src-tauri/target/${{ matrix.target }}/release/*.dll" -ErrorAction SilentlyContinue |
+            Copy-Item -Destination $stage/
+          $zip = "Docflare_v.${version}_x64_portable.zip"
+          Compress-Archive -Path "$stage/*" -DestinationPath $zip -Force
+          # Only upload to a release on tag pushes (a draft release exists then).
+          # On workflow_dispatch (branch ref) the ZIP is built as a smoke test but not uploaded.
+          if ("${{ github.ref_type }}" -eq "tag") {
+            gh release upload "${{ github.ref_name }}" $zip --clobber
+          } else {
+            Write-Host "workflow_dispatch: built $zip (skipping release upload, no tag)"
+          }
+
+      - name: Stage per-target updater manifest
+        shell: bash
+        run: |
+          mkdir -p updater-out
+          found=$(find src-tauri/target -name 'latest.json' -path '*release*' | head -n1)
+          test -n "$found" || { echo "latest.json not found for ${{ matrix.target }}"; exit 1; }
+          cp "$found" "updater-out/latest-${{ matrix.target }}.json"
+
+      - name: Upload per-target updater manifest artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: updater-${{ matrix.target }}
+          path: updater-out/latest-${{ matrix.target }}.json
+          if-no-files-found: error
+
+  aggregate-updater:
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download per-target updater fragments
+        uses: actions/download-artifact@v4
+        with:
+          pattern: updater-*
+          path: updater-fragments
+          merge-multiple: true
+
+      - name: Merge per-target latest.json into one manifest
+        run: node scripts/merge-updater-manifest.mjs updater-fragments latest.json
+
+      - name: Upload merged latest.json to the draft release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.ref_name }}" latest.json --clobber
