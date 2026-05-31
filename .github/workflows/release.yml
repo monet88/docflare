@@ -20,10 +20,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: macos-14, target: aarch64-apple-darwin, bundles: "app,dmg" }
-          - { os: macos-15-intel, target: x86_64-apple-darwin, bundles: "app,dmg" }
-          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu, bundles: "deb,appimage" }
-          - { os: windows-latest, target: x86_64-pc-windows-msvc, bundles: "nsis" }
+          - { os: macos-14, target: aarch64-apple-darwin, bundles: "app,dmg", platform: darwin-aarch64, updaterGlob: "\\.app\\.tar\\.gz" }
+          - { os: macos-15-intel, target: x86_64-apple-darwin, bundles: "app,dmg", platform: darwin-x86_64, updaterGlob: "\\.app\\.tar\\.gz" }
+          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu, bundles: "deb,appimage", platform: linux-x86_64, updaterGlob: "\\.AppImage" }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, bundles: "nsis", platform: windows-x86_64, updaterGlob: "-setup\\.exe" }
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -62,6 +62,7 @@ jobs:
         run: npm run verify-sidecar -- --target ${{ matrix.target }}
 
       - name: Build and bundle (tauri-action)
+        id: tauri
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +73,10 @@ jobs:
           releaseName: Docflare ${{ github.ref_name }}
           releaseDraft: true
           prerelease: false
-          includeUpdaterJson: true
+          # Each job builds a single-platform latest.json. Do NOT let tauri-action
+          # upload it (4 parallel jobs would overwrite each other on the release).
+          # The aggregate-updater job merges all 4 and uploads one manifest.
+          uploadUpdaterJson: false
           args: --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
 
       - name: Build Windows portable ZIP
@@ -98,25 +102,51 @@ jobs:
             Write-Host "workflow_dispatch: built $zip (skipping release upload, no tag)"
           }
 
-      - name: Stage per-target updater manifest
+      - name: Stage per-target updater fragment
         shell: bash
+        env:
+          ARTIFACT_PATHS: ${{ steps.tauri.outputs.artifactPaths }}
+          PLATFORM_KEY: ${{ matrix.platform }}
+          UPDATER_GLOB: ${{ matrix.updaterGlob }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
         run: |
+          set -euo pipefail
           mkdir -p updater-out
-          found=$(find src-tauri/target -name 'latest.json' | head -n1)
-          if [ -z "$found" ]; then
-            echo "::error::latest.json not found for ${{ matrix.target }}. createUpdaterArtifacts may be disabled or signing failed."
-            echo "--- bundle tree for debugging ---"
-            find src-tauri/target -path '*bundle*' -type f | head -50 || true
+          version=$(node -p "require('./package.json').version")
+
+          # Find the signed updater artifact's .sig (the artifact tauri's updater
+          # downloads). Prefer artifactPaths output, fall back to a tree scan.
+          sig=$(printf '%s' "$ARTIFACT_PATHS" | jq -r '.[]?' 2>/dev/null | grep -E "${UPDATER_GLOB}\\.sig$" | head -n1 || true)
+          if [ -z "$sig" ] || [ ! -f "$sig" ]; then
+            sig=$(find src-tauri/target -type f -name '*.sig' | grep -E "${UPDATER_GLOB}\\.sig$" | head -n1 || true)
+          fi
+          if [ -z "$sig" ] || [ ! -f "$sig" ]; then
+            echo "::error::updater .sig not found for ${PLATFORM_KEY} (glob ${UPDATER_GLOB}). createUpdaterArtifacts disabled or signing failed."
+            echo "--- artifactPaths ---"; printf '%s\n' "$ARTIFACT_PATHS"
+            echo "--- .sig files ---"; find src-tauri/target -name '*.sig' || true
             exit 1
           fi
-          echo "found updater manifest: $found"
-          cp "$found" "updater-out/latest-${{ matrix.target }}.json"
 
-      - name: Upload per-target updater manifest artifact
+          # The updater artifact is the .sig minus the suffix; its release asset
+          # name is the basename, downloaded from the release by the updater.
+          artifact="${sig%.sig}"
+          asset=$(basename "$artifact")
+          url="https://github.com/${REPO}/releases/download/${TAG}/${asset}"
+          echo "platform=${PLATFORM_KEY} sig=${sig} asset=${asset}"
+
+          node scripts/build-updater-fragment.mjs \
+            --platform "${PLATFORM_KEY}" \
+            --version "${version}" \
+            --sig "${sig}" \
+            --url "${url}" \
+            --out "updater-out/latest-${PLATFORM_KEY}.json"
+
+      - name: Upload per-target updater fragment artifact
         uses: actions/upload-artifact@v4
         with:
-          name: updater-${{ matrix.target }}
-          path: updater-out/latest-${{ matrix.target }}.json
+          name: updater-${{ matrix.platform }}
+          path: updater-out/latest-${{ matrix.platform }}.json
           if-no-files-found: error
 
   aggregate-updater:

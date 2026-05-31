@@ -109,7 +109,7 @@ test('release.yml runs download-sidecar and verify-sidecar per target', () => {
 test('release.yml uploads per-target latest.json as an artifact', () => {
     const y = read(releaseYml);
     assert.match(y, /actions\/upload-artifact@v4/);
-    assert.match(y, /updater-\$\{\{\s*matrix\.target\s*\}\}/);
+    assert.match(y, /updater-\$\{\{\s*matrix\.platform\s*\}\}/);
 });
 
 test('release.yml has an aggregate-updater job that needs build and uploads merged latest.json', () => {
