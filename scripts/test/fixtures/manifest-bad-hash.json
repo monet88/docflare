@@ -1,0 +1,13 @@
+{
+    "cloudflaredVersion": "2026.5.2",
+    "downloadUrlTemplate": "https://github.com/cloudflare/cloudflared/releases/download/{version}/{asset}",
+    "targets": {
+        "x86_64-unknown-linux-gnu": {
+            "asset": "cloudflared-linux-amd64",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "outName": "cloudflared-x86_64-unknown-linux-gnu",
+            "extract": null,
+            "hashOf": "download"
+        }
+    }
+}
