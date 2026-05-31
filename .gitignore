@@ -1,0 +1,30 @@
+# Harness durable layer — each project instance generates its own data.
+harness.db
+harness.db-wal
+harness.db-shm
+
+# Rust build output for harness tooling.
+target/
+dist/
+node_modules/
+
+# Local agent and browser session artifacts.
+.claude/
+.playwright-mcp/
+.kiro
+.agents
+
+# Downloaded Harness CLI binary for installed project instances.
+scripts/bin/harness-cli
+
+# Tauri updater signing keys — never commit private keys.
+*.key
+*.key.pwd
+
+# Sidecar binaries are fetched at build time from the pinned manifest.
+src-tauri/binaries/cloudflared*
+
+# Generated build artifacts.
+*.tsbuildinfo
+src-tauri/gen/
+src-tauri/icons/
