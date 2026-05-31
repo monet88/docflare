@@ -20,10 +20,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: macos-14, target: aarch64-apple-darwin, bundles: "app,dmg", platform: darwin-aarch64, updaterGlob: "\\.app\\.tar\\.gz" }
-          - { os: macos-15-intel, target: x86_64-apple-darwin, bundles: "app,dmg", platform: darwin-x86_64, updaterGlob: "\\.app\\.tar\\.gz" }
-          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu, bundles: "deb,appimage", platform: linux-x86_64, updaterGlob: "\\.AppImage" }
-          - { os: windows-latest, target: x86_64-pc-windows-msvc, bundles: "nsis", platform: windows-x86_64, updaterGlob: "-setup\\.exe" }
+          - { os: macos-14, target: aarch64-apple-darwin, bundles: "app,dmg", platform: darwin-aarch64, updaterGlob: "\\.app\\.tar\\.gz", updaterAsset: "Docflare_aarch64.app.tar.gz" }
+          - { os: macos-15-intel, target: x86_64-apple-darwin, bundles: "app,dmg", platform: darwin-x86_64, updaterGlob: "\\.app\\.tar\\.gz", updaterAsset: "Docflare_x64.app.tar.gz" }
+          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu, bundles: "deb,appimage", platform: linux-x86_64, updaterGlob: "\\.AppImage", updaterAsset: "Docflare_{v}_amd64.AppImage" }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, bundles: "nsis", platform: windows-x86_64, updaterGlob: "-setup\\.exe", updaterAsset: "Docflare_{v}_x64-setup.exe" }
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -108,6 +108,7 @@ jobs:
           ARTIFACT_PATHS: ${{ steps.tauri.outputs.artifactPaths }}
           PLATFORM_KEY: ${{ matrix.platform }}
           UPDATER_GLOB: ${{ matrix.updaterGlob }}
+          UPDATER_ASSET: ${{ matrix.updaterAsset }}
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
         run: |
@@ -128,10 +129,10 @@ jobs:
             exit 1
           fi
 
-          # The updater artifact is the .sig minus the suffix; its release asset
-          # name is the basename, downloaded from the release by the updater.
-          artifact="${sig%.sig}"
-          asset=$(basename "$artifact")
+          # The release asset name differs from the on-disk bundle name (tauri-action
+          # renames macOS app bundles to include the arch, e.g. Docflare_aarch64.app.tar.gz).
+          # Use the explicit per-platform asset name with the version substituted.
+          asset="${UPDATER_ASSET/\{v\}/$version}"
           url="https://github.com/${REPO}/releases/download/${TAG}/${asset}"
           echo "platform=${PLATFORM_KEY} sig=${sig} asset=${asset}"
 
