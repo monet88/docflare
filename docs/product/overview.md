@@ -1,19 +1,20 @@
-# CF Tunnel Desktop — Overview
+# CF Tunnel Desktop — Cross-platform — Overview
 
-**Product:** Cloudflare Local Tunnel Manager for Windows (Tauri v2 + React + TypeScript + Vite).  
+**Product:** Cloudflare Local Tunnel Manager (Tauri v2 + React + TypeScript + Vite), shipping for Windows, macOS, and Linux.  
 **Goal:** Let developers expose `localhost` services to the public internet using custom domains through Cloudflare Tunnel with a native, lightweight, secure desktop app.
 
 ## Problem
-Developers need a simple, native Windows app to map local ports (e.g. `http://localhost:3000`) to public subdomains via Cloudflare Tunnel without manual `cloudflared` CLI work or leaking secrets.
+Developers need a simple, native desktop app to map local ports (e.g. `http://localhost:3000`) to public subdomains via Cloudflare Tunnel without manual `cloudflared` CLI work or leaking secrets.
 
 ## MVP Scope
 
 **In scope**
 - Manual endpoint management (local target → subdomain)
+- Cross-platform desktop: Windows 10/11 x64, macOS (Intel + Apple Silicon), Linux x64
 - Local JSON config (non-secret metadata only)
 - System tray + minimize on close
-- Autostart on Windows boot with tunnel restore
-- Secrets in Windows Credential Manager / keyring only
+- Autostart on boot with tunnel restore
+- Secrets in OS credential manager only (Windows Credential Manager / macOS Keychain / Linux Secret Service)
 - Single-instance lock
 
 **Out of scope (MVP)**
@@ -35,3 +36,5 @@ Developers need a simple, native Windows app to map local ports (e.g. `http://lo
 
 > Derived from historical seed `seed/2026-05-23-cf-tunnel-project-overview-pdr.md`.  
 > Last updated during 2026-05-23 seed intake. Future changes via normal story + decision process.
+>
+> See: ADR [0007 Cross-platform release pipeline](../decisions/0007-cross-platform-release-pipeline.md).
