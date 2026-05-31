@@ -7,6 +7,7 @@ pub mod store;
 
 pub fn run() -> tauri::Result<()> {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             commands::health::health_check,
             commands::profile::get_profile,
