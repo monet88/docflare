@@ -69,7 +69,10 @@ test('release.yml has exactly 4 build matrix entries with correct os/target/bund
     for (const e of expected) {
         assert.ok(y.includes(e.os), `matrix missing os ${e.os}`);
         assert.ok(y.includes(e.target), `matrix missing target ${e.target}`);
-        assert.ok(y.includes(`bundles: ${e.bundles}`), `matrix missing bundles ${e.bundles}`);
+        // Bundles MUST be quoted: an unquoted comma in a YAML flow mapping
+        // (`{ ..., bundles: app,dmg }`) is parsed as a separator and silently
+        // drops the second bundle. Assert the quoted form.
+        assert.ok(y.includes(`bundles: "${e.bundles}"`), `matrix missing quoted bundles "${e.bundles}"`);
     }
 });
 
