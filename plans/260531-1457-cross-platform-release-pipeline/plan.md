@@ -57,7 +57,7 @@ CI matrix that produces 14 release assets (8 installer/payload files + 5 `.sig` 
 | 3 | [Tauri config and updater key](./phase-03-tauri-config-and-updater-key.md) | ✅ Complete (icons generated; deb bundle verified; GH Secrets pending user) |
 | 4 | [Release workflow](./phase-04-release-workflow.md) | ✅ Complete (actionlint-clean; awaits tag dry-run) |
 | 5 | [PR CI workflow](./phase-05-pr-ci-workflow.md) | ✅ Complete (actionlint-clean) |
-| 6 | [Portable ZIP and dry-run release](./phase-06-portable-zip-and-dry-run-release.md) | ⏸ Awaits GH Secrets + tag push + CI runners |
+| 6 | [Portable ZIP and dry-run release](./phase-06-portable-zip-and-dry-run-release.md) | ✅ Complete (v0.1.0-rc.1 dry-run: 14 assets, 4-platform latest.json verified) |
 
 ## Implementation Status (2026-05-31)
 
