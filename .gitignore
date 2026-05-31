@@ -27,3 +27,7 @@ src-tauri/binaries/cloudflared*
 # Generated build artifacts.
 *.tsbuildinfo
 src-tauri/gen/
+
+# Mobile icon variants — desktop app only (regenerate via `npm run tauri icon` if needed).
+src-tauri/icons/android/
+src-tauri/icons/ios/
