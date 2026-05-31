@@ -2,7 +2,8 @@
 
 Date: 2026-05-23
 Status: Draft for user review
-Source: `project-overview-pdr.md`
+Source (current contract): docs/product/overview.md, security-and-secrets.md, data-models-and-routes.md, non-functional-requirements.md, acceptance-criteria.md  
+Historical seed (immutable): docs/product/seed/2026-05-23-cf-tunnel-project-overview-pdr.md
 
 ## Summary
 
